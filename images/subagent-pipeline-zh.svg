@@ -1,0 +1,58 @@
+<svg width="1200" height="820" viewBox="0 0 1200 820" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Sub-Agent 星型流水线架构</title>
+  <desc id="desc">一个 Sub-Agent 星型流水线架构示意图，中心是你这个协调者，外围是五个通用角色，它们都向中心汇报，彼此不直接通信。</desc>
+
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f3f5f8"/>
+      <stop offset="100%" stop-color="#eef1f5"/>
+    </linearGradient>
+    <radialGradient id="centerBlue" cx="50%" cy="45%" r="65%">
+      <stop offset="0%" stop-color="#8fb4ff"/>
+      <stop offset="100%" stop-color="#77a1f3"/>
+    </radialGradient>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#9aa4b2" flood-opacity="0.18"/>
+    </filter>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,5 L0,10 z" fill="#4a5560" />
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1200" height="820" fill="url(#bg)" rx="24" />
+
+  <text x="600" y="78" text-anchor="middle" font-size="40" font-weight="700" fill="#111827" font-family="Noto Sans CJK SC, Microsoft YaHei, PingFang SC, Arial, sans-serif">Sub-Agent 星型流水线架构</text>
+
+  <circle cx="370" cy="410" r="150" fill="url(#centerBlue)" filter="url(#softShadow)" />
+  <text x="370" y="395" text-anchor="middle" font-size="34" font-weight="500" fill="#111827" font-family="Noto Sans CJK SC, Microsoft YaHei, PingFang SC, Arial, sans-serif">你</text>
+  <text x="370" y="440" text-anchor="middle" font-size="28" font-weight="500" fill="#111827" font-family="Noto Sans CJK SC, Microsoft YaHei, PingFang SC, Arial, sans-serif">（协调者）</text>
+
+  <g fill="#d9dbe1" filter="url(#softShadow)" font-family="Noto Sans CJK SC, Microsoft YaHei, PingFang SC, Arial, sans-serif" text-anchor="middle" fill-opacity="1">
+    <circle cx="820" cy="170" r="56" />
+    <text x="820" y="182" font-size="26" fill="#111827">角色A</text>
+
+    <circle cx="820" cy="290" r="56" />
+    <text x="820" y="302" font-size="26" fill="#111827">角色B</text>
+
+    <circle cx="820" cy="410" r="56" />
+    <text x="820" y="422" font-size="26" fill="#111827">角色C</text>
+
+    <circle cx="820" cy="530" r="56" />
+    <text x="820" y="542" font-size="26" fill="#111827">角色D</text>
+
+    <circle cx="820" cy="650" r="56" />
+    <text x="820" y="662" font-size="26" fill="#111827">角色E</text>
+  </g>
+
+  <g stroke="#4a5560" stroke-width="4" fill="none" marker-end="url(#arrow)">
+    <line x1="768" y1="184" x2="500" y2="318" />
+    <line x1="768" y1="302" x2="500" y2="364" />
+    <line x1="764" y1="410" x2="500" y2="410" />
+    <line x1="768" y1="518" x2="500" y2="456" />
+    <line x1="768" y1="636" x2="500" y2="502" />
+  </g>
+
+  <line x1="930" y1="126" x2="930" y2="694" stroke="#6b7280" stroke-width="4" stroke-dasharray="8 8" marker-end="url(#arrow)" />
+
+  <text x="600" y="760" text-anchor="middle" font-size="28" font-weight="600" fill="#111827" font-family="Noto Sans CJK SC, Microsoft YaHei, PingFang SC, Arial, sans-serif">你控制全局。角色之间不直接通信。</text>
+</svg>
