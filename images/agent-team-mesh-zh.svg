@@ -1,0 +1,129 @@
+<svg width="1400" height="920" viewBox="0 0 1400 920" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Agent Team 网状协作拓扑</title>
+  <desc id="desc">展示 5 个角色之间的直接通信、自主决策，以及你 main 主要负责确认、传话和进度感知的 Agent Team 拓扑图。</desc>
+  <defs>
+    <linearGradient id="greenNode" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#5FD37A" />
+      <stop offset="100%" stop-color="#2EAF57" />
+    </linearGradient>
+    <linearGradient id="blueNode" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#8FD2FF" />
+      <stop offset="100%" stop-color="#56AEEF" />
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#000000" flood-opacity="0.12"/>
+    </filter>
+    <marker id="arrowEnd" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#27313B" />
+    </marker>
+    <marker id="arrowStart" markerWidth="10" markerHeight="10" refX="2" refY="5" orient="auto">
+      <path d="M10,0 L0,5 L10,10 Z" fill="#27313B" />
+    </marker>
+    <style>
+      .zh { font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif; }
+      .title { font-size: 40px; font-weight: 700; fill: #111827; }
+      .pillText { font-size: 19px; font-weight: 600; fill: #111827; }
+      .label { font-size: 24px; font-weight: 700; fill: #FFFFFF; }
+      .sub { font-size: 18px; font-weight: 600; fill: rgba(255,255,255,0.94); }
+      .mainLabel { font-size: 24px; font-weight: 700; fill: #0F2740; }
+      .mainSub { font-size: 18px; font-weight: 600; fill: #173A5B; }
+      .legend { font-size: 18px; font-weight: 600; fill: #374151; }
+      .note { font-size: 18px; font-weight: 600; fill: #111827; }
+      .edge { stroke: #27313B; stroke-width: 3.5; fill: none; marker-start: url(#arrowStart); marker-end: url(#arrowEnd); }
+      .dashed { stroke: #9CA3AF; stroke-width: 2.5; stroke-dasharray: 4 8; fill: none; }
+      .pill { fill: #FFFFFF; stroke: #6B7280; stroke-width: 2.5; filter: url(#shadow); }
+      .node { stroke: rgba(24,39,56,0.22); stroke-width: 3; filter: url(#shadow); }
+      .checkCircle { fill: #35B85A; }
+      .checkMark { font-size: 24px; font-weight: 800; fill: #FFFFFF; }
+    </style>
+  </defs>
+
+  <rect width="1400" height="920" fill="#F5F7FA"/>
+
+  <rect x="350" y="34" rx="24" ry="24" width="700" height="86" class="pill"/>
+  <text x="700" y="88" text-anchor="middle" class="zh title">Agent Team：网状协作拓扑</text>
+
+  <g>
+    <path d="M86 170 H438 L468 197 L438 224 H86 Q58 224 58 197 V197 Q58 170 86 170 Z" class="pill"/>
+    <text x="82" y="205" class="zh pillText">角色间可直接对话</text>
+    <circle cx="422" cy="197" r="22" class="checkCircle"/>
+    <text x="422" y="205" text-anchor="middle" class="zh checkMark">✓</text>
+  </g>
+
+  <g>
+    <path d="M955 170 H1314 Q1342 170 1342 197 V197 Q1342 224 1314 224 H955 L925 197 Z" class="pill"/>
+    <text x="1015" y="205" class="zh pillText">各角色拥有自主决策权</text>
+    <circle cx="972" cy="197" r="22" class="checkCircle"/>
+    <text x="972" y="205" text-anchor="middle" class="zh checkMark">✓</text>
+  </g>
+
+  <g>
+    <path d="M76 535 H400 L430 562 L400 589 H76 Q48 589 48 562 V562 Q48 535 76 535 Z" class="pill"/>
+    <text x="84" y="555" class="zh pillText">团队内部协作完成产出</text>
+    <text x="84" y="581" class="zh pillText">不靠你逐步中转</text>
+    <circle cx="384" cy="562" r="22" class="checkCircle"/>
+    <text x="384" y="570" text-anchor="middle" class="zh checkMark">✓</text>
+  </g>
+
+  <g>
+    <path d="M1004 585 H1308 Q1336 585 1336 612 V612 Q1336 639 1308 639 H1004 L974 612 Z" class="pill"/>
+    <text x="1066" y="603" class="zh pillText">流程动态：</text>
+    <text x="1162" y="603" class="zh pillText">可并行 / 可回退 / 可跳步</text>
+    <circle cx="1021" cy="612" r="22" class="checkCircle"/>
+    <text x="1021" y="620" text-anchor="middle" class="zh checkMark">✓</text>
+  </g>
+
+  <line x1="700" y1="285" x2="510" y2="415" class="edge"/>
+  <line x1="700" y1="285" x2="888" y2="415" class="edge"/>
+  <line x1="510" y1="415" x2="888" y2="415" class="edge"/>
+  <line x1="510" y1="415" x2="560" y2="690" class="edge"/>
+  <line x1="510" y1="415" x2="842" y2="690" class="edge"/>
+  <line x1="700" y1="285" x2="560" y2="690" class="edge"/>
+  <line x1="700" y1="285" x2="842" y2="690" class="edge"/>
+  <line x1="888" y1="415" x2="560" y2="690" class="edge"/>
+  <line x1="888" y1="415" x2="842" y2="690" class="edge"/>
+  <line x1="560" y1="690" x2="842" y2="690" class="edge"/>
+
+  <path d="M760 262 C930 290, 1040 340, 1130 445" class="dashed"/>
+  <path d="M932 430 C1010 430, 1080 435, 1130 445" class="dashed"/>
+  <path d="M860 705 C990 640, 1060 550, 1130 445" class="dashed"/>
+  <path d="M580 705 C760 690, 935 620, 1130 445" class="dashed"/>
+  <path d="M505 430 C730 470, 920 470, 1130 445" class="dashed"/>
+
+  <circle cx="700" cy="285" r="82" fill="url(#greenNode)" class="node"/>
+  <text x="700" y="274" text-anchor="middle" class="zh label">大纲架构师</text>
+  <text x="700" y="304" text-anchor="middle" class="zh sub">architect</text>
+
+  <circle cx="510" cy="415" r="82" fill="url(#greenNode)" class="node"/>
+  <text x="510" y="404" text-anchor="middle" class="zh label">选题侦察员</text>
+  <text x="510" y="434" text-anchor="middle" class="zh sub">scout</text>
+
+  <circle cx="888" cy="415" r="82" fill="url(#greenNode)" class="node"/>
+  <text x="888" y="404" text-anchor="middle" class="zh label">初稿写手</text>
+  <text x="888" y="434" text-anchor="middle" class="zh sub">writer</text>
+
+  <circle cx="560" cy="690" r="82" fill="url(#greenNode)" class="node"/>
+  <text x="560" y="679" text-anchor="middle" class="zh label">终稿润色师</text>
+  <text x="560" y="709" text-anchor="middle" class="zh sub">polisher</text>
+
+  <circle cx="842" cy="690" r="82" fill="url(#greenNode)" class="node"/>
+  <text x="842" y="679" text-anchor="middle" class="zh label">技术审稿人</text>
+  <text x="842" y="709" text-anchor="middle" class="zh sub">reviewer</text>
+
+  <circle cx="1130" cy="445" r="92" fill="url(#blueNode)" class="node"/>
+  <text x="1130" y="425" text-anchor="middle" class="zh mainLabel">你（main）</text>
+  <text x="1130" y="455" text-anchor="middle" class="zh mainSub">确认 / 传话</text>
+  <text x="1130" y="481" text-anchor="middle" class="zh mainSub">进度感知</text>
+
+  <g>
+    <rect x="120" y="802" rx="22" ry="22" width="1160" height="76" class="pill"/>
+    <text x="700" y="837" text-anchor="middle" class="zh note">Agent 之间直接沟通；你主要在核心确认节点拍板，也会收到必要的进度同步，但不主导团队内部决策</text>
+  </g>
+
+  <g>
+    <line x1="988" y1="730" x2="1060" y2="730" class="edge"/>
+    <text x="1078" y="736" class="zh legend">实线：角色之间直接沟通</text>
+    <line x1="988" y1="770" x2="1060" y2="770" class="dashed"/>
+    <text x="1078" y="776" class="zh legend">虚线：需要确认或同步进度时联系你</text>
+  </g>
+</svg>
