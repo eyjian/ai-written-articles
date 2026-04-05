@@ -14,12 +14,12 @@
 
 如果赶时间，先记这四句：
 
-- **`Trae` 当然也能实践 `Harness Engineering`。** 它有 `Rules`、`/plan`、`/spec` 这类前置约束和规划能力，本质上和 `CodeBuddy` 属于同一层。
+- **`Trae` 当然也能实践 `Harness Engineering`。** 但它主要覆盖的是前馈约束、规划和验收这几层，不是完整的 harness 闭环。
 - **`DeerFlow` 不只是“也能做 harness”。它自己就明确把自己定义成 `Super Agent Harness`。**
-- **`CodeBuddy` 和 `Trae` 更像 IDE 级 harness。** 重点是让 AI 在本地研发流里更守规矩。
+- **`CodeBuddy` 和 `Trae` 更像 IDE 级 harness 实践。** 强项是让 AI 在本地研发流里更守规矩，不是自己提供一整套 Agent 运行时。
 - **`DeerFlow` 更像运行时级 harness。** 它不是陪你在编辑器里写代码，而是给 Agent 提供独立运行、调度、记忆和隔离执行的底座。
 
-一句话概括：**`Trae` 和 `CodeBuddy` 是“在工具里练 harness”，`DeerFlow` 是“把 harness 做成系统”。**
+一句话概括：**`Trae` 和 `CodeBuddy` 是“在工具里把 harness 的前半段练起来”，`DeerFlow` 是“把 harness 做成完整系统”。**
 
 ## 第一章：先别急着比产品，先把“在比什么”说清
 
@@ -46,7 +46,9 @@
 
 ## 第二章：为什么说 `Trae` 也能实践 `Harness Engineering`
 
-先回答最直接的那个问题： **能，而且完全能。** 从公开资料看，`Trae` 已经具备实践 harness 所需的几块关键拼图。
+先回答最直接的那个问题：**能，但要把话说准。** `Trae` 能实践 `Harness Engineering`，但它实践的主要是 harness 的一个轻量子集，不是完整闭环。
+
+它最强的两块，其实很清楚。
 
 一块是 `Rules`。
 
@@ -56,7 +58,7 @@
 
 `Trae` 的 `/plan` 会先生成一份计划文档，把目标、范围、步骤先对齐；`/spec` 更重，直接生成 `spec.md`、`task.md`、`checklist.md` 三份文档，把需求、任务拆解和验收清单一起写出来。
 
-这套东西像不像 harness？太像了。因为它干的正是这几件事：
+这套东西像不像 harness？当然像。因为它干的正是这几件事：
 
 - 先把边界写死
 - 再把任务拆开
@@ -71,13 +73,24 @@
 | **强规格对齐** | Plan 文档审阅、任务确认 | `/spec` 产出 `spec.md`、`task.md`、`checklist.md` | 减少 AI 自由发挥 |
 | **反馈验证** | 执行前审阅、执行后检查、计划归档 | `checklist.md` + 文档化验收 | 不听口头总结，只看产物 |
 
+但问题也正出在这里。到这一步，`CodeBuddy` 和 `Trae` 覆盖得更多还是 harness 的“上半身”：前馈约束、执行编排、规格对齐、验收反馈。再往下，一套更完整的 harness 还得处理执行隔离、长期记忆、多 Agent 调度、可脱离 IDE 运行这些事。
+
+| harness 完整闭环的关键层 | `CodeBuddy` / `Trae` | `DeerFlow` |
+|------|-------------------|-----------|
+| **前馈约束** | ✅ 强项 | ✅ |
+| **执行编排** | ✅ 强项 | ✅ |
+| **反馈验证** | ⚠️ 能做，但更依赖人在环上复核 | ✅ 可以做成系统内闭环 |
+| **执行隔离** | ❌ 基本没有独立沙箱 | ✅ `sandbox` |
+| **长期记忆** | ❌ 不主打长期任务记忆 | ✅ `memory` |
+| **多 Agent 调度与自治运行** | ❌ 不原生 | ✅ `subagents` + 独立运行时 |
+
 所以如果问题是：**“`使用CodeBuddy实践Harness-Engineering.md` 里那套思路，能不能搬到 `Trae` 上？”**答案是：**可以，几乎可以原样迁移。**你只需要把：
 
 - `.codebuddy/rules` 换成 `.trae/rules`
 - `Plan Mode` 换成 `/plan`
 - 更复杂的需求，直接上 `/spec`
 
-方法论没有变。变的是界面、命令名和交互细节。这也是为什么我更愿意把 `CodeBuddy` 和 `Trae` 放进同一组：它们都是**在 IDE 里，把 harness 这套工程纪律落地**。
+方法论没有变。变的是界面、命令名和交互细节。只是要再补一句：**`CodeBuddy` 和 `Trae` 更像在 IDE 里练 harness 的前半段；`DeerFlow` 才把后半段也补成了一套系统。**
 
 ## 第三章：为什么说 `DeerFlow` 不是“也能做”，而是“它就是”
 
@@ -85,7 +98,20 @@
 
 `DeerFlow` 在 GitHub README 里直接把自己定义成 [open-source super agent harness](https://github.com/bytedance/deer-flow)。而且官方表述不只是挂个名词而已，它还明确强调：`DeerFlow 2.0` 已经不再只是一个“深度研究框架”，而是一个把 `subagents`、`memories`、`sandboxes`、`skills`、`tools`、`message gateway` 编织在一起的完整系统。
 
-这意味着什么？意味着它讲的不是“我怎么在 IDE 里少跑偏”，而是“我怎么让一个 Agent 真正在独立环境里跑上几十分钟、几个小时，还别把自己和宿主机一起搞乱”。可以把 `DeerFlow` 的关键能力，直接映射到 harness 的控制面上：
+这里顺手要解释一个很容易让人困惑的点：**既然它现在讲的是 harness，为什么名字还叫 `DeerFlow`？**
+
+答案其实不复杂。它早期确实更像一个 deep research workflow framework，名字里的 `flow` 对应的是任务流、步骤编排和研究流程。到了 `2.0`，项目已经不只是在讲 workflow 了，而是在往 super agent harness 演进。名字留了下来，定位变了。这在开源项目里很常见。
+
+这也是为什么我会单独强调：**`workflow` 不是 `harness` 的同义词。**
+
+| 概念 | 它主要回答什么 |
+|------|----------------|
+| **`workflow`** | 步骤怎么串起来跑、状态怎么流转、任务怎么编排 |
+| **`harness`** | Agent 在哪跑、怎么约束、怎么验收、怎么隔离、怎么记忆、怎么调度 |
+
+所以更准确地说，`workflow` 只是 harness 里的一层，通常对应执行编排；而 harness 还得再往前管约束，往后管反馈，往下管隔离、记忆和运行边界。少了这些，它就还只是流程，不是完整 harness。
+
+这意味着什么？意味着 `DeerFlow` 讲的不是“我怎么在 IDE 里少跑偏”，而是“我怎么让一个 Agent 真正在独立环境里跑上几十分钟、几个小时，还别把自己和宿主机一起搞乱”。可以把 `DeerFlow` 的关键能力，直接映射到 harness 的控制面上：
 
 | `DeerFlow` 能力 | 对 harness 意味着什么 |
 |------|-------------------|
@@ -167,7 +193,7 @@
 
 | 误区 | 为什么不对 | 更准确的理解 |
 |------|------------|--------------|
-| **“`Trae` 也有规则和计划，所以它和 `DeerFlow` 是一类。”** | 规则和计划只是 harness 的一部分，不代表你已经有了运行时底座 | `Trae` 更像 IDE 级实践，`DeerFlow` 是运行时级系统 |
+| **“`Trae` 也有规则和计划，所以它和 `DeerFlow` 是一类。”** | 规则和计划只覆盖 harness 的前半段，不代表你已经有了隔离、记忆和运行时底座 | `Trae` 更像 IDE 级实践，`DeerFlow` 是运行时级系统 |
 | **“`DeerFlow` 更强，所以 `CodeBuddy` 就没意义了。”** | 两者解决的问题不一样，一个偏本地研发协作，一个偏独立 Agent 运行 | 该在 IDE 里做的，还是 IDE 最顺手 |
 | **“我只要把 prompt 写细一点，就算做了 harness。”** | 只有 prompt，没有反馈、验收、回滚和控制，不算完整闭环 | 真正的 harness 至少要有前馈约束和反馈传感 |
 
@@ -188,15 +214,17 @@
 
 现在回头看开头那三个问题，其实已经不难答了。
 
-`Trae` 能不能实践 `Harness Engineering`？能，而且和 `CodeBuddy` 属于同一层的答案。
+`Trae` 能不能实践 `Harness Engineering`？能。**但更准确地说，它实践的是 harness 的轻量子集，和 `CodeBuddy` 属于同一层。**
 
 `DeerFlow` 算不算一种 `Harness Engineering`？算，而且它不只是“实践”，它就是把 harness 做成系统本体。
+
+为什么它叫 `DeerFlow`，名字却不止是工作流？因为 `flow` 更像它早期的出发点，`harness` 才是它现在长成的形态：**workflow 只管流程，harness 还要管约束、反馈、隔离、记忆和调度。**
 
 `CodeBuddy` 和 `DeerFlow` 到底差在哪？差在**一个是在 IDE 里把 AI 管住，一个是在运行时里把 Agent 托住。**
 
 所以最准确的说法不是谁替代谁，而是：
 
-> **`CodeBuddy` / `Trae` 更像 IDE 级 harness，适合把 AI 编码协作变得有纪律；`DeerFlow` 更像运行时级 harness，适合把长周期、多 Agent 任务变成一套可持续运行的系统。**
+> **`CodeBuddy` / `Trae` 更像 IDE 级 harness 实践，适合把 AI 编码协作变得有纪律；`DeerFlow` 更像运行时级 harness，适合把长周期、多 Agent 任务变成一套可持续运行的系统。**
 
 要是今天就想开始，建议别一上来就奔最重的。先把 IDE 里的小闭环跑顺。先学会给 AI 上制度。等你真的需要更大的系统，再去搭更大的 harness。那时候，你会稳很多。
 
