@@ -1,24 +1,22 @@
 # 别让 AI 裸奔：用 CodeBuddy 搭一个 Markdown 质检 Harness
 
-本文是 Harness Engineering 的实践，不是在讲概念，而是在一个足够小的本地场景里，把 Harness 的四个核心动作（约束 → 执行 → 反馈 → 控制）跑了一遍完整闭环。
+这篇不聊概念，直接上手——用 `CodeBuddy` 给 AI 套一条最小的缰绳。场景也故意收得很小：就在一个本地仓库里，把 Harness 的四个核心动作（约束 → 执行 → 反馈 → 控制）跑一遍完整闭环。
 
 > 不用外部云平台，不搞复杂多 Agent。只用 `CodeBuddy` 当前公开可见的能力，先做一条最小闭环：先约束，再执行，再复检，必要时还能回退。
 
-很多人一听 `Harness Engineering`，就会下意识觉得这事很大。
+很多人一听 `Harness Engineering`，就会下意识把它想成一套很重的 Agent 工程：得有平台，得有调度，还得接一堆外部系统。
 
-要么得有一整套 Agent 平台。要么得有复杂调度。要么得接很多外部系统。
+第一次练，其实没必要把摊子铺这么大。
 
-其实不用。
+找一个本地、结果好验证、出错能回退的小任务，就够了。
 
-你完全可以从一个很小的本地任务开始。
+这篇就拿一个具体例子来跑：**本地 Markdown 质检守门员**。它只做六类硬检查，第一轮只出报告，不改正文；第二轮只开低风险修复；修完必须复检；如果结果不对，还能退回去。
 
-这篇我就带你做一个：**本地 Markdown 质检守门员**。它只做六类硬检查，第一轮只出报告，不改正文；第二轮只开低风险修复；修完必须复检；如果结果不对，还能退回去。
-
-这就已经很像一条像样的 harness 了。
+这已经是一条像样的 harness 了。
 
 先把话说准：**`CodeBuddy` 官方并没有把这些能力整体命名成 `Harness Engineering`。** 本文讲的是——基于官方文档已经公开写明的 `Plan Mode`、`Rules`、检查点、预览/环境检查等能力，怎样把 `Harness` 这套做法落到一个简单、能复现的本地案例里。
 
-文中涉及的能力，主要参考这几份公开资料：
+文中涉及的能力，主要参考这几份公开资料（其中 `Rules` 的公开入口当前仍在腾讯云文档）：
 
 - [概览页](https://www.codebuddy.ai/docs/zh/ide/User-guide/Overview)
 - [Plan Mode 文档](https://www.codebuddy.ai/docs/zh/ide/Features/Plan-Mode)
@@ -37,7 +35,7 @@
 
 别把词说玄了。
 
-放到今天这个案例里，`Harness Engineering` 你先理解成四层就够了：
+放到今天这个案例里，先按一个**裁剪版**的四层框架理解就够了。它不是完整的 `Harness Engineering` 地图，而是专门为这篇本地质检场景收窄后的版本：
 
 | 这层东西在管什么 | 这篇怎么落 | 对应到 `CodeBuddy` 是什么 |
 |------|-----------|-------------------------|
@@ -45,6 +43,8 @@
 | **执行编排** | 把任务拆成扫描、修复、复检几步 | `Plan Mode` 的任务清单 |
 | **反馈传感** | 不听口头总结，只看报告和复检结果 | 报告文件 + 环境检查 + 再扫描 |
 | **状态控制** | 放权前先留回退点，出错能撤 | 检查点、历史记录、计划归档 |
+
+这里借的是 Birgitta Böckeler 提到的 `Feedback Sensors` 思路：给 AI 的输出接上“测量仪表”，别只听它说“已经完成了”。
 
 一句话就是：**先把 AI 放进规则里，再让它干活。**
 
@@ -89,9 +89,9 @@
 
 ## 第三章：开始前，先把三样东西写死
 
-这一步很重要。
+这一步别嫌麻烦。
 
-不是为了显得专业。是为了后面别返工。
+前面把规则口径、命令契约和 `Rules` 文件写死，后面执行时才不会一边做一边改。
 
 ### 3.1 先把规则判定口径写死
 
@@ -128,7 +128,7 @@
 |------|------|
 | `python3 tools/markdown_guardian.py scan --root . --report reports/markdown-guardian-report.json` | 扫描并生成第一轮报告 |
 | `python3 tools/markdown_guardian.py fix-safe --root . --report reports/markdown-guardian-report-after.json` | 只修低风险问题，再输出修后报告 |
-| `python3 tools/markdown_guardian.py compare --before reports/markdown-guardian-report.json --after reports/markdown-guardian-report-after.json` | 输出前后对比 |
+| `python3 tools/markdown_guardian.py compare --before reports/markdown-guardian-report.json --after reports/markdown-guardian-report-after.json --out reports/markdown-guardian-compare.json` | 输出终端对比表，并落盘前后对比 JSON |
 
 退出码也别含糊。
 
@@ -138,7 +138,12 @@
 | `1` | 扫描成功，但发现问题 |
 | `2` | 工具自身执行失败 |
 
-这几条写进去，后面你不管是自己手跑，还是让 AI 帮你接进别的流程，都会轻松很多。
+还有一个细节，最好现在就定：`compare` 不只是“屏幕上看一眼”。我建议它同时做两层输出：
+
+- 终端打印一张人能快速扫读的对比表
+- 额外落盘 `reports/markdown-guardian-compare.json`，字段至少包含 `rule`、`before`、`after`、`remaining`、`action`
+
+这样前面的 `scan`、`fix-safe`、`compare` 三个命令，才算把“给人看”和“给流程接”都说完整了。
 
 ### 3.3 最后把 `Rules` 文件写进去
 
@@ -183,12 +188,13 @@
 - 需要实现三个命令：`scan`、`fix-safe`、`compare`
 - `scan` 输出 `reports/markdown-guardian-report.json`
 - `fix-safe` 只允许修复低风险项，并输出修后报告
-- `compare` 输出前后对比
+- `compare` 输出终端对比表，并落盘 `reports/markdown-guardian-compare.json`
 - 退出码：0=无问题，1=发现问题，2=脚本错误
 
 ## 输出要求
 - 第一轮必须输出结构化 JSON 报告
 - 每条问题至少包含：`file`、`rule`、`severity`、`line`、`message`、`fixable`
+- `compare` 的 JSON 至少包含：`rule`、`before`、`after`、`remaining`、`action`
 - 没有明确授权前，不允许修改 Markdown 正文
 
 ## 修复边界
@@ -209,13 +215,13 @@
 
 ## 第四章：规则写完后，别急着做——先验证它有没有被读进去
 
-这是很多人最容易忽略的坑。
+这是最容易被跳过的一步。
 
-规则文件写了，不代表它一定已经被当前对话吃进去了。
+规则文件写在那儿，不代表当前这轮对话真的把它读进去了。
 
-稳妥做法很简单：**保存规则后，新开一个 `Plan Mode` 计划。**
+最稳的办法只有一个：**保存规则后，新开一个 `Plan Mode` 计划。**
 
-然后在第一条提示词里，直接让它先复述边界。
+然后在第一条提示词里，先让它复述边界。
 
 你可以这样说：
 
@@ -244,9 +250,7 @@
 
 直接让它重来。
 
-这一步不是吹毛求疵。
-
-这一步是在验证：**前馈约束到底有没有生效。**
+这不是吹毛求疵，而是在检查：**前馈约束到底有没有真的接管执行。**
 
 ## 第五章：正式开做——用 `Plan Mode` 起一个小而稳的计划
 
@@ -269,7 +273,8 @@
 1. `tools/markdown_guardian.py`
 2. `reports/markdown-guardian-report.json`
 3. `reports/markdown-guardian-report-after.json`
-4. 一个能解释 scan / fix-safe / compare 用法的简短说明
+4. `reports/markdown-guardian-compare.json`
+5. 一个能解释 scan / fix-safe / compare 用法的简短说明
 ```
 
 正常情况下，`Plan Mode` 会先问你一些澄清问题。
@@ -314,6 +319,19 @@
 
 越小，越稳。
 
+正式执行前，再把整条链记成 6 步：
+
+```text
+1. 审计划
+2. 第一轮扫描（dry-run）
+3. 验报告
+4. 留检查点
+5. 只开 fix-safe
+6. 复检 / compare
+```
+
+后面第七到第十章，其实就是按这 6 步依次展开。走到哪一步，就只放开哪一步的权限。
+
 ## 第七章：第一轮只做扫描，不给修复权
 
 现在才开始执行。
@@ -339,8 +357,8 @@ reports/markdown-guardian-report.json
 {
   "summary": {
     "files_scanned": 6,
-    "issues_found": 5,
-    "fixable_issues": 2,
+    "issues_found": 4,
+    "fixable_issues": 1,
     "non_fixable_issues": 3
   },
   "issues": [
@@ -351,10 +369,36 @@ reports/markdown-guardian-report.json
       "line": 246,
       "message": "缺少固定结尾声明",
       "fixable": true
+    },
+    {
+      "file": "使用CodeBuddy-IDE构建Sub-Agent.md",
+      "rule": "heading_level_skip",
+      "severity": "error",
+      "line": 88,
+      "message": "标题层级从 ## 直接跳到 ####",
+      "fixable": false
+    },
+    {
+      "file": "使用CodeBuddy-IDE构建Agent-Team.md",
+      "rule": "unclosed_code_fence",
+      "severity": "error",
+      "line": 142,
+      "message": "代码块 fence 未闭合",
+      "fixable": false
+    },
+    {
+      "file": "Trae也能做Harness-Engineering吗？CodeBuddy、Trae与DeerFlow的真正区别.md",
+      "rule": "empty_section",
+      "severity": "warning",
+      "line": 168,
+      "message": "标题“### 再往下一步”下没有有效内容",
+      "fixable": false
     }
   ]
 }
 ```
+
+如果你的仓库当前没有命中 `empty_section`，也很正常。这里把它放进示例，只是为了把这 6 条规则在报告里的长相一次讲全。
 
 字段名不必一模一样。
 
@@ -367,15 +411,15 @@ reports/markdown-guardian-report.json
 
 如果报告里没有 `fixable`，或者没有明确的 `rule` 字段，那就先别往下走。
 
-这说明你的“反馈传感器”还没装好。
+这说明你的反馈传感这层还没装好。
 
 ## 第八章：报告出来后，先验结果，再留检查点
 
-到这里，很多人会犯一个很常见的错：AI 说“检查完成”，他就直接开第二轮了。
+到这里最容易出事：AI 口头说“检查完成”，很多人就顺手把第二轮放开了。
 
-别急。
+先别急。
 
-你先自己看一次报告。
+你先自己过一遍报告。
 
 重点看这四件事：
 
@@ -446,8 +490,13 @@ AI 没变，变的是你给它的工作制度。
 你可以补这一句：
 
 ```text
-请执行 compare，输出 before/after 对比表，至少包含：规则名、修复前数量、修复后数量、剩余问题、是否需要人工处理。
+请执行 compare：终端输出 before/after 对比表，并写出 `reports/markdown-guardian-compare.json`。字段至少包含：规则名、修复前数量、修复后数量、剩余问题、是否需要人工处理。
 ```
+
+这里最好约定成两层输出：
+
+- 终端表格给人快速扫读
+- JSON 文件给后续流程继续消费
 
 理想中的表，大概长这样：
 
@@ -457,6 +506,29 @@ AI 没变，变的是你给它的工作制度。
 | **文末缺少空行** | 3 | 0 | 0 | 已自动修复 |
 | **图片路径不存在** | 1 | 1 | 1 | 人工确认路径 |
 | **标题层级跳跃** | 2 | 2 | 2 | 人工判断结构 |
+
+如果你想把这一步接进后续流程，落盘 JSON 最少可以长这样：
+
+```json
+[
+  {
+    "rule": "missing_footer",
+    "before": 2,
+    "after": 0,
+    "remaining": 0,
+    "action": "auto_fixed"
+  },
+  {
+    "rule": "broken_image_path",
+    "before": 1,
+    "after": 1,
+    "remaining": 1,
+    "action": "manual_review"
+  }
+]
+```
+
+人看表，流程接 JSON。这样 `compare` 的契约才算完整。
 
 如果对比结果不合理，比如：
 
@@ -472,12 +544,12 @@ AI 没变，变的是你给它的工作制度。
 
 ## 第十一章：如果你看到这些，就说明整条链跑偏了
 
-这部分很实用。你可以直接拿来当排错表。
+这一章可以直接当排错表用。
 
 | 失败迹象 | 说明哪里跑偏了 | 怎么拉回来 |
 |------|----------------|-----------|
 | **第一轮就改了正文** | `dry-run` 没卡住 | 停止执行，回到计划阶段，重申第一轮只扫描 |
-| **报告没有 `fixable` 字段** | 反馈传感器不完整 | 补齐报告结构，再决定要不要进入修复 |
+| **报告没有 `fixable` 字段** | 反馈传感这一层不完整 | 补齐报告结构，再决定要不要进入修复 |
 | **规则名和问题类型混乱** | 判定口径没写死 | 回到规则定义，补明确细则 |
 | **第二轮修掉了标题或段落** | 修复边界过宽 | 回退到检查点，只保留 footer/newline 两类修复 |
 | **计划里混进 UI、部署、数据库** | 范围失控 | 删掉范围外任务，重新生成小计划 |
@@ -524,21 +596,13 @@ AI 没变，变的是你给它的工作制度。
 
 ## 结论
 
-很多人把 `Harness Engineering` 想得太重。
+很多人把 `Harness Engineering` 想得太重，好像非得先有一整套 Agent 平台，才谈得上控制面、反馈回路和状态治理。
 
-总觉得非得先有一整套 Agent 平台，才配聊控制面、反馈回路、状态治理。
+第一次练，其实不必从重系统起步。
 
-其实不用。
+像这篇这样——先用 `Rules` 卡边界，再用 `Plan Mode` 收范围，第一轮只扫描不修文，修复前先留检查点，第二轮只开 `fix-safe`，修完再跑 `compare`——就已经是一条完整的小闭环。
 
-你完全可以从一个很小的本地任务开始。
-
-像这篇这样——先用 `Rules` 卡边界，再用 `Plan Mode` 收范围，第一轮只扫描不修文，第二轮只开 `fix-safe`，修复前先留检查点，修复后必须复检。
-
-这就已经不是“随便让 AI 写个脚本”了。
-
-这是在给 AI 上制度。
-
-如果你今天就想试，我建议你只做这五件事：
+如果你今天就想试，我建议先做五件事：
 
 1. **先写死规则判定和命令契约**
 2. **保存 `Rules` 后，新开计划验证它已经生效**
@@ -546,13 +610,9 @@ AI 没变，变的是你给它的工作制度。
 4. **第二轮放权前，先确认检查点可回退**
 5. **修完必须跑 `compare`，别听口头总结**
 
-先把这五步跑顺。
+把这五步跑顺以后，你会发现，AI 并没有突然更聪明；真正变化的是，它开始在一套明确制度里工作。
 
-你会发现，AI 没有突然更聪明。
-
-但它开始更像一个守规矩的工程协作者了。
-
-> 本文通过本地 Markdown 质检场景，完整实践了一套轻量化 Harness Engineering 流程：以前馈规则约束行为，以计划模式编排执行，以结构化报告实现可观测反馈，以检查点与分级权限保障安全可控，形成了可复现、可验证、可扩展的最小 AI 控制闭环。
+那时候你再回头看 `Harness Engineering`，它就不再是个大词，而是一套能落到项目里的工程习惯。
 
 ---
 
