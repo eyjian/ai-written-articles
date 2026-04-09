@@ -6,7 +6,18 @@
 
 `Superpowers` 就是来管这件事的。它不是给模型“加智商”，而是给 AI 编程助手**加纪律**。
 
-这个项目由 Jesse Vincent（`obra`）和 Prime Radiant 团队成员共同构建，项目地址在 [GitHub 仓库](https://github.com/obra/superpowers)。按 2026 年 4 月 GitHub 页面显示，仓库已经到 **13.5 万 Star**。README 对它的自我介绍也很直白：它是一套 built on composable skills 的 **complete software development workflow**。官方支持工具包括 Claude Code、Cursor、Codex、OpenCode、GitHub Copilot CLI 和 Gemini CLI；**官方列表里没有 CodeBuddy**。不过这不等于你借不了它的做法，后面就讲怎么借。
+这个项目由 Jesse Vincent（`obra`）和 Prime Radiant 团队成员共同构建，项目地址在 [GitHub 仓库](https://github.com/obra/superpowers)。按 2026 年 4 月 GitHub 页面显示，仓库已经到 **13.5 万 Star**。README 对它的自我介绍也很直白：它是一套 built on composable skills 的 **complete software development workflow**。官方支持工具包括 Claude Code、Cursor、Codex、OpenCode、GitHub Copilot CLI 和 Gemini CLI；**CodeBuddy 可以通过插件市场安装**（见上方安装方法）。除了直接安装使用，你也可以借它的做法在 CodeBuddy 里复刻核心纪律，后面就讲怎么借。
+
+### 怎么安装
+
+如果你用的是 CodeBuddy，两行命令就能装上：
+
+```bash
+codebuddy plugin marketplace add obra/superpowers-marketplace # 添加市场源
+codebuddy plugin install superpowers@superpowers-marketplace   # 安装插件
+```
+
+装完之后，Superpowers 的 skill 集合就会被加载到你的开发环境里，可以按需启用。其他工具（Claude Code、Cursor 等）的安装方式见 [GitHub 仓库](https://github.com/obra/superpowers) 的 README。
 
 ## 先给判断
 
