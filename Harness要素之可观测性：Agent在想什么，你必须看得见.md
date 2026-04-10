@@ -25,7 +25,7 @@
 
 ## 可观测性在 Harness 架构中的位置
 
-可观测性是 Harness 五要素中最"底层"的一个——它不直接控制 Agent 的行为，但它让其他四个要素的执行状态变得透明。约束拦截了多少次、沙箱里发生了什么、上下文用了多少、反馈回路循环了几轮——这些信息都需要可观测性来呈现。
+可观测性是 Harness 五要素中最"基础"的一个——它不直接控制 Agent 的行为，但它让其他四个要素的执行状态变得透明。约束拦截了多少次、沙箱里发生了什么、上下文用了多少、反馈回路循环了几轮——这些信息都需要可观测性来呈现。
 
 ```text
 ┌─────────────────────────────────────────┐
@@ -325,6 +325,9 @@ class MetricsAggregator:
 """带完整可观测性的编排器"""
 
 import time
+from tracer import Tracer
+from snapshot import SnapshotManager
+from decision_log import DecisionLogger
 
 class ObservableOrchestrator:
     def __init__(self, task_id: str, task: str):
@@ -420,7 +423,7 @@ Token 消耗: 12340
     "timestamp": "2026-04-07T23:30:18",
     "elapsed_ms": 3200,
     "event_type": "tool_call",
-    "data": {"tool": "write_file", "args": {"path": ".env"}, "success": false}
+    "data": {"tool": "write_file", "args": {"path": ".env"}, "result_preview": "Permission denied: .env is in protected list", "success": false}
   },
   {
     "task_id": "fix-login-bug",
@@ -468,6 +471,19 @@ Token 消耗: 12340
 五个要素不是五个独立的功能，而是一个互相依赖的系统。约束定义边界，沙箱保证隔离，上下文管理喂对信息，反馈回路校验质量，可观测性让一切透明。缺了任何一个，系统都会有盲区。
 
 不用一次全搭齐。先从最痛的地方开始——如果 Agent 经常越界就先补约束，如果结果不稳定就先补反馈回路，如果出了问题找不到原因就先补可观测性。一层一层加，每加一层都能把稳定性拉上一个台阶。
+
+## 延伸阅读
+
+本文是 Harness Engineering 五要素系列的最后一篇。其他四个要素：
+
+- [Harness 要素之约束：不是写在 prompt 里的建议，而是编进流程的硬卡控](Harness要素之约束：不是写在prompt里的建议，而是编进流程的硬卡控.md)
+- [Harness 要素之沙箱隔离：让 Agent 只能在围栏里干活](Harness要素之沙箱隔离：让Agent只能在围栏里干活.md)
+- [Harness 要素之上下文管理：Agent 跑偏的根源是喂错了信息](Harness要素之上下文管理：Agent跑偏的根源是喂错了信息.md)
+- [Harness 要素之反馈回路：不是跑完就算，而是跑歪了能自动拉回来](Harness要素之反馈回路：不是跑完就算，而是跑歪了能自动拉回来.md)
+
+Claude Code 的 Harness 架构全景分析：
+
+- [Claude Code 就是一个 Harness：从泄露的 51 万行源码看 Agent 的运行底座](Claude-Code就是一个Harness：从泄露源码看Agent的运行底座.md)
 
 ---
 
