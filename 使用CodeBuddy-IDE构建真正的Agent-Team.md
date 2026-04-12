@@ -140,7 +140,12 @@ task(
 
 关键差异：**同时传入 `name` 和 `team_name` 触发异步团队模式**。`task` 会创建一个**独立的 Agent 实例**——有自己的上下文窗口、自己的执行线程。创建后它在后台运行，不阻塞调用方。
 
-> **subagent_name 从哪里来？** `task` 的 `subagent_name` 引用的是已注册的 Agent 类型名称。文章编写团队的 `scout`/`architect`/`writer`/`reviewer`/`polisher` 不是内置 Agent——如果用的是自定义多 Agent 插件，需要先在 `plugin.json` 中注册为 subagent，`task` 才能找到它们。详见第五章踩坑记录中的"Agent 注册失败"。如果不想自定义注册，可以统一用内置的 `code-explorer` 作为 `subagent_name`，把角色职责全部放在 `prompt` 参数里。
+> **subagent_name 从哪里来？**
+>
+> `task` 的 `subagent_name` 引用的是已注册的 Agent 类型名称。文章编写团队的 `scout`/`architect`/`writer`/`reviewer`/`polisher` 不是内置 Agent。
+>
+> - **自定义注册**：如果用的是自定义多 Agent 插件，需要先在 `plugin.json` 中注册为 subagent，`task` 才能找到它们。详见第五章踩坑记录中的"Agent 注册失败"。
+> - **快捷方式**：如果不想自定义注册，可以统一用内置的 `code-explorer` 作为 `subagent_name`，把角色职责全部放在 `prompt` 参数里。
 
 对比一下：
 - **Skill 隐式编排**：成员的创建和派发由 Skill 加载机制自动完成，在运行时看不到派发过程
@@ -411,7 +416,7 @@ Skill 隐式编排版：                         工具链显式编排版：
 
 1. **需要精确控制成员派发时机**：比如 reviewer 必须在 writer 完成后才启动，而不是一开始就全部加载进来。
 
-2. **需要可追踪的通信**：reviewer 退回 writer 修改后，你需要确认消息是否投递成功、writer 是否收到并处理了。
+2. **需要可追踪的通信**：reviewer 退回 writer 修改后，需要确认消息是否投递成功、writer 是否收到并处理了。
 
 3. **需要并行加速**：长文写作时，不同章节可以由不同 writer 实例并行撰写；或者 reviewer 审前几章的同时 writer 继续写后几章。
 
@@ -459,11 +464,11 @@ Skill 隐式编排版：                         工具链显式编排版：
 
 ## 结论
 
-**Skill 隐式编排和工具链显式编排的分界线，在于团队的创建、通信和生命周期是否由你显式控制。** 两者都建立在 CodeBuddy Team 模式的同一套基础设施之上——独立上下文、点对点通信、并行执行——区别只在编排层：前者由 Skill 机制自动驱动，后者由 `team_create`/`task`/`send_message`/`team_delete` 四个工具显式调用。
+**Skill 隐式编排和工具链显式编排的分界线，在于团队的创建、通信和生命周期是否被显式控制。** 两者都建立在 CodeBuddy Team 模式的同一套基础设施之上——独立上下文、点对点通信、并行执行——区别只在编排层：前者由 Skill 机制自动驱动，后者由 `team_create`/`task`/`send_message`/`team_delete` 四个工具显式调用。
 
 这四个工具各自解决了一个跨越：`team_create` 让团队组建可见，`task` 的异步模式让成员派发可控，`send_message` 让通信可追踪，`team_delete` 让资源清理可确认。但它们的代价也很明确——搭建成本高、调试链路长。
 
-所以选型的判断标准不是"哪个更先进"，而是**你对可控性的需求到了哪一级**。线性流程、短文写作、快速验证——Skill 隐式编排完全够用。等遇到多轮退回、并行写作、通信追溯这些硬需求时，再沿着"Skill → Subagent 星形 → Agent Team 网状"的路径渐进迁移。
+所以选型的判断标准不是"哪个更先进"，而是**对可控性的需求到了哪一级**。线性流程、短文写作、快速验证——Skill 隐式编排完全够用。等遇到多轮退回、并行写作、通信追溯这些硬需求时，再沿着"Skill → Subagent 星形 → Agent Team 网状"的路径渐进迁移。
 
 ---
 
