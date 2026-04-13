@@ -14,7 +14,6 @@
 
 ## 一、先给判断
 
-- 赶时间带走的三句话：
   1. Superpowers 的 skill 不是文档，是**行为塑造代码**——它用 Iron Laws、Rationalization Prevention Table、Red Flags Table 三张"心理学武器"逼 Agent 遵守纪律
   2. 14 个 skill 不是平铺的，是有**依赖关系和工作流编排**的——using-superpowers 是入口，brainstorming → writing-plans → TDD → review → verification 是主链路
   3. 多平台适配靠的是 `hooks/session-start` 这个 Bash 脚本，在 session 启动时把 using-superpowers 的内容注入 Agent 上下文——**零代码依赖，纯文本注入**
