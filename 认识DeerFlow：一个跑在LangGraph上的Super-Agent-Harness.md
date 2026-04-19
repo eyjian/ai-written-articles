@@ -6,7 +6,7 @@
 
 这两个词的差别不小。Framework 关心的是"怎么让 Agent 跑起来"。Harness 关心的是"怎么让 Agent 跑得住、跑得久、不跑偏"。
 
-如果你了解 Harness Engineering，会立刻意识到：DeerFlow 不只是一个工具，它是 Harness Engineering 在开源社区的一个落地实现。
+如果了解 Harness Engineering，会立刻意识到：DeerFlow 不只是一个工具，它是 Harness Engineering 在开源社区的一个落地实现。
 
 ## 先给判断
 
@@ -90,7 +90,7 @@ LangGraph 是一个状态机驱动的 Workflow 引擎，擅长处理多步骤、
 - **Workflow 管的是"步骤能不能串起来"**：A 做完了该 B 做，B 做完了该 C 做。
 - **DeerFlow 管的是"每一步跑得住不住"**：A 跑在隔离沙箱里，B 拿到的上下文是干净的，C 失败了能自动重试，整个过程有迹可查。
 
-这和本仓库另一篇文章的判断一致：Workflow 只能保证步骤能串起来，Harness 才能保证整条链路跑完以后你不用逐个检查每一步的输出。
+这和本仓库另一篇文章的判断一致：Workflow 只能保证步骤能串起来，Harness 才能保证整条链路跑完以后不用逐个检查每一步的输出。
 
 DeerFlow 就是在 LangGraph 的 Workflow 能力之上，叠加了 Harness 层。
 
